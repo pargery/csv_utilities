@@ -1,0 +1,50 @@
+import os.path
+import CountMoreStuff, ReportWithLevels
+
+# call CountStuff and ReportWithLevels
+# test with CSV file originating at http://data.octo.dc.gov/
+# with the following headers: 
+# "CCN","REPORTDATETIME","SHIFT","OFFENSE","METHOD","BLOCKSITEADDRESS","WARD","ANC","DISTRICT","PSA","NEIGHBORHOODCLUSTER","BUSINESSIMPROVEMENTDISTRICT","VOTING_PRECINCT","START_DATE","END_DATE"
+
+def test_dict():
+    datadir = "/Users/margery/Documents/pystuff/pyGotham/demo/data"
+    inputdir = "input"
+    outputdir = "output"
+
+    csv_file = 'crime_incidents_2013_CSV_3.csv'
+    report_file='crime_report_9.txt'
+
+    report_headers = ['SHIFT', 'METHOD','OFFENSE','DISTRICT','ANC']
+    #,'VOTING_PRECINCT']
+
+    values = dict()
+    values['SHIFT'] = ['DAY', 'EVENING', 'MIDNIGHT']
+    values['METHOD'] = ['GUN', 'KNIFE', 'OTHERS']
+    format_dict = dict()
+    for m in values['SHIFT']:
+        format_dict[m]='During {0:s} shift'.format(m)
+    for m in values['METHOD']:
+        format_dict[m]='with {0:s}'.format(m)
+
+    inpath = os.path.join(datadir, inputdir, csv_file)
+    outpath = os.path.join(datadir,outputdir,report_file)
+
+    #Create a CountStuff object and use it to sum up the CSV data
+    cs = CountMoreStuff.CountMoreStuff()
+    cs.format_dict = format_dict
+    c = cs.count_levels(inpath, report_headers)
+    #print c  #debug, print the data structure. not practical for large CSV's
+
+    #now create a ReportWithLevels object and use it.
+    r = ReportWithLevels.ReportWithLevels()
+    r.total_width=45
+    r.level_indent=4
+
+    r.max_level = 3
+    r.open_outfile(outpath)
+    r.write_line('Reporting on {0:s}'.format(csv_file))
+    cs.default_report(r)
+
+
+test_dict()
+
